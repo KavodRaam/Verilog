@@ -1,0 +1,482 @@
+Verilog
+Raam Kavod
+Recommend to complete the assignments from HDLbits  —--->>>>  https://hdlbits.01xz.net/wiki/Problem_sets#Getting_Started
+—------------------------------------------------------------------------------------------------------------------------
+Behavioral Design - Hard to visualize the circuit, but easy to understand its functionality.
+Example:
+
+module mux_2x1 ( input wire a, b, s, output reg o );
+
+	always @( a or b or s ) begin
+		if ( s == 1’b1 ) begin
+			o = a;
+		end else begin
+			o = b;
+		end
+	end
+
+endmodule
+—------------------------------------------------------------------------------------------------------------------------
+initial - Where the code starts executing (Like “main” in C). executes only one time at the beginning.
+it is not a synthesizable code!
+—------------------------------------------------------------------------------------------------------------------------
+begin-end - executing sequentially the code lines wrapped in it.
+IF THE BLOCK CONTAINS ONE LINE IT IS NOT MANDATORY TO USE IT
+—------------------------------------------------------------------------------------------------------------------------
+#<number><units> - Time delay.
+Example:
+#1ns
+—------------------------------------------------------------------------------------------------------------------------
+always - A block of code that will be executed repeatedly. For conditional elements (Like “while True” in C)
+Example: of more possibilities for always:
+
+always @ (*) begin   // everytime something happens, do the things in the block
+always @ (posedge) begin  // each positive edge of the clk, do the things in the block
+always @ (negedge) begin  // each negative edge of the clk, do the things in the block
+
+Another Example:
+
+module always_example (); // displays Hello world on simulation every 1 nano second.
+
+	always #1ns begin
+		assign w0 = w1;
+	end
+
+endmodule
+—------------------------------------------------------------------------------------------------------------------------
+<size>’<base><number> - numbers syntax
+Example:
+
+assign w1 = 8’hFF; // logical hexadecimal 15 (FF)
+assign w2 = 80; // signed number, 32 bits
+—------------------------------------------------------------------------------------------------------------------------
+wire - Net data-type, variable used for connectivity. Should be used for continuous assignment.
+4 states: 0,1,Z,X
+Example:
+
+wire w1, w2; // multiple wires
+wire[7:0] wx8; // 8 bit wire   (To select one wire from the vector use: assign w1 = wx8[5]; )
+—------------------------------------------------------------------------------------------------------------------------
+reg - Register data-type, variable used for register (although it is not really a register). Should be used for sequential statements.
+4 states: 0,1,Z,X
+Example:
+
+reg r1, r2; // multiple regs
+reg[7:0] rx8; // 8 bit reg
+—------------------------------------------------------------------------------------------------------------------------
+logic - Variable that can be used for everything, replaces wire and reg.
+EXCEPT FOR ONE USE! - Only wire can be assigned for multiple drivers.
+4 states: 0,1,Z,X
+Example:
+
+wire w0, w1, w2;
+assign w0 = w1;   Possible
+assign w0 = w2;
+—-------------------------------
+logic l0, l1, l2;
+assign l0 = l1;     Impossible
+assign l0 = l2;
+—------------------------------------------------------------------------------------------------------------------------
+multiple-line comment - Starts with /* and ends with */
+—------------------------------------------------------------------------------------------------------------------------
+For loop 
+Example:
+
+module example_forloop ();
+
+	byte byte0; // initialized as 0, byte0 = 8’b00000000
+
+	initial begin
+		for ( byte0=0 ; byte0<127 ; byte0++ ) begin
+			assign w0 = w1;
+		end
+	end
+endmodule
+—------------------------------------------------------------------------------------------------------------------------
+
+Type
+Width
+States
+Sign
+Range
+wire
+1
+0, 1, Z, X
+1 bit
+0,1
+reg
+1
+0, 1, Z, X
+1 bit
+0,1
+logic
+1
+0, 1, Z, X
+1 bit
+0,1
+integer
+32
+0, 1, Z, X
+Signed
+-2,147,483,648 to 2,147,483,648
+Integer unsigned
+32
+0, 1, Z, X
+Unsigned
+0 to 4,294,967,295
+bit
+1
+0, 1
+1 bit
+0,1
+byte
+8
+0, 1
+Signed
+-128 to 127
+byte unsigned
+8
+0, 1
+Unsigned
+0 to 255
+shortint
+16
+0, 1
+Signed
+-32,768 to 32,767
+shortint unsigned
+16
+0, 1
+Unsigned
+0 to 65,535
+int
+32
+0, 1
+Signed
+-2,147,483,648 to 2,147,483,648
+int unsigned
+32
+0, 1
+Unsigned
+0 to 4,294,967,295
+longint
+64
+0, 1
+Signed
+-9,223,372,036,854,775,808 to 9,223,372,036,854,775,807
+longint unsigned
+64
+0, 1
+Unsigned
+0 to 18,446,744,073,709,551,615
+
+
+
+Strength Level
+Type
+Degree
+supply
+Driving
+Strong
+strong
+Driving
+
+pull
+Driving
+large
+Storage
+weak
+Driving
+medium
+Storage
+small
+Storage
+highz
+High Impedance
+Weak
+
+
+—------------------------------------------------------------------------------------------------------------------------
+typedef - user type definition for more convenient coding:
+Example:
+
+typedef byte unsigned ubyte;
+ubyte ubyte0;
+ubyte ubyte1;
+—------------------------------------------------------------------------------------------------------------------------
+Equality - there are two options for comparing using equal:
+byte0 == l8     (or != for unequal)
+byte0 === i8   (or !== for unequal)
+The difference between == to ==== is explained in the next examples:
+Example:
+
+module example_equality1 ();
+
+	byte byte0;       // initialized as 0, byte0 = 8’b00000000
+	logic[7:0] i8;     // initialized as X, l8 = 8’bxxxxxxxx ( Note -  $isunknown(l8) == True )
+
+	begin
+		byte0 = l8;
+		if ( byte0 == l8 );     TRUE
+		if ( byte0 === l8 );   FALSE
+	end
+
+endmodule
+
+Another Example:
+module example_equality2 ();
+
+	byte byte0; // initialized as 0, byte0 = 8’b00000000
+	logic[7:0] i8; // initialized as X, l8 = 8’bxxxxxxxx ( Note -  $isunknown(l8) == True )
+
+	begin
+		byte0 = -1;     // byte0 = 8’b11111111
+		l8 = 255;        // l8 = 8’b11111111
+		if ( byte0 == l8 );   TRUE
+		if ( byte0 === l8 ;   FALSE
+	end
+endmodule
+—------------------------------------------------------------------------------------------------------------------------
+type [MSB:LSB] vector name; -  Declaration of a vector
+Example:
+
+wire[15:0] wire_15bit; // A bus of 16 wires
+reg[7:0] reg_8bit; // A vector of eight 1bit registers
+reg[7:0]mem[255:0]; // 256 unpacked elements, each of which is a 8bit packed vector of reg.
+reg mem[31]; // 32 unpacked elements, each of which is a 1bit reg
+
+Another Example: split input of 16 bits to two outputs of 8 bit each:
+
+module split_16_to_2x8 ( input wire [15:0] in output wire [7:0]  out_hi, out_lo);
+	assign out_hi = in[15:8];
+	assign out_lo = in[7:0];
+endmodule
+—------------------------------------------------------------------------------------------------------------------------
+assign -  keyword used to define continuous assignment. Place a value on a wire.
+note: when assigning a non declared variable, it will be by default a 1 bit wire.
+Adding default_nettype none would make a situation like that an error, which will highlight the bug.
+—------------------------------------------------------------------------------------------------------------------------
+Difference between bitwise operation to logical operation (& and &&).
+Operation
+Bitwise
+Logical (1bit output)
+and
+&
+&&
+or
+|
+||
+not
+~
+!
+xor
+^
+^
+nand
+~{ab}
+!{ab}
+nor
+~{a|b}  nor(out, a, b)
+!{a|b}
+xnor
+~{a^b}
+!{a^b}
+
+
+Example:
+module and_differences ( output wire [2:0]  out_& , output out_&&);
+	wire[2:0] non_zero_five = 3’b101;  // A binary 5 that is non zero (not 000)
+	wire[2:0] non_zero_seven = 3’b111; // A binary 7 that is non zero (not 000)
+assign out_& = non_zero_five & non_zero_seven ; // bitwise, therefore - out_& = 101
+assign out_& = non_zero_five && non_zero_seven ;  // not bitwise, therefore - out_&& = 1 because it is
+             // a non-zero with a non-zero
+	assign nand_out = ~& wire; // Will give the result of nand(wire[0],wire[1]wire[2])
+endmodule
+—------------------------------------------------------------------------------------------------------------------------
+Shift and Arithmetic shift - let a = 4’b1100
+
+Shift right - b = a >> 2; // b is 4’b0011
+Shift left - b = a << 1; // b is 4’b1000
+Arithmetic Shift right - b = a >>> 1; // b is 4’b1110
+Arithmetic Shift left - b = a <<< 1; // b is 4’b1000 // there's no difference between it to <<
+—------------------------------------------------------------------------------------------------------------------------
+module <module_name> (); - A representation of a design block.
+using a module: module_child instance(.in(a), in(b), .out(o));
+Example: shift register -  child module: module my_dff ( input clk input d, output q );
+
+module top_module (  input clk input d, output q );
+    wire d1_out, d2_out;
+    my_dff d1(.clk(clk), .d(d), .q(d1_out));
+    my_dff d2(.clk(clk), .d(d1_out), .q(d2_out));
+    my_dff d3(.clk(clk), .d(d2_out), .q(q));
+endmodule
+—------------------------------------------------------------------------------------------------------------------------
+Conditional operator - ? (like in C)
+conditional expression ? true expression : false expression ;
+Example: mux2x1 8 wide
+
+module mux2x1_8wide(  input [7:0] a,b, input s output out );
+
+assign out = s ? b : a ;
+endmodule
+—------------------------------------------------------------------------------------------------------------------------
+Always IF - using if else and using conditional operator ? important to notice the datatype!
+Must think of all possible outcomes (always use else) to not create latch that will cause bugs.
+Example: 
+module top_module( input a, b, sel_b1, sel_b2, output wire out_assign, reg out_always   );
+    
+    assign out_assign = ( sel_b1 && sel_b2 ) ? b : a;  // usage of ? condition
+    
+    always @(*) begin		// 	}
+        if ( sel_b1 & sel_b2 )begin	// 	}
+            out_always = b;		// 	}
+        end				// 	usage of  
+        else begin			// 	 if else condition
+            out_always = a;		// 	}
+        end				// 	}
+    end				// 	}
+
+endmodule
+—------------------------------------------------------------------------------------------------------------------------
+Concatenation - assign {} = {};
+Example: concatenate a,b,c,d,e and f  (30 bits) to w,x,y and z (32 bits)  followed by two 1 bits.
+
+module concatenate (  input [4:0] a,b,c,d,e,f output [7:0]  w,x,y,z );
+
+assign { w,x,y,z } = { a,b,c,d,e,f, 2’b11 };
+
+endmodule
+
+Another Example: Given an 8-bit input vector [7:0], reverse its bit ordering
+
+module reverse_byte (  input [7:0] in output [7:0]  out );
+
+assign { out } = { in[0],in[1],in[2],in[3],in[4],in[5],in[6],in[7] };
+
+endmodule
+
+Another Example: {num{vector}};
+{5{1’b1}};  // equal to 5’b11111
+{2{a,b,c}};  // equal to {a,b,c,a,b,c}
+{3’d5, {2{2’b11}}};  // equal to 7’b1011111
+
+Another Example: extend a signed 8bit number to a signed 32bit number
+
+module extend_signed (  input [7:0] in output [32:0]  out );
+
+assign { out } = { { 24{ in[7] }, in };  // replicate sign bit (in[7] - the MSB) and copy the rest.
+
+endmodule
+
+Another Example: Compute all 25 pairwise 1bit comparisons
+module pairwise (  input a,b,c,d,e output [24:0]  out );
+
+assign  out  = ~{ {5{a}}, {5{b}}, {5{c}}, {5{d}}, {5{e}} } ^ { 5{a,b,c,d,e} };
+
+endmodule
+—------------------------------------------------------------------------------------------------------------------------
+Case condition - (the “else” if case condition is default) (case - casex - casez)
+Example: 4x1 mux -
+
+module mux_4x1 (  input [3:0 ] in, input [1:0 ] s,  output out );
+
+always @(*)   // the * indicates that every time a signal in this block changes, its runs this always block
+begin
+case(s)
+2’b00: out=in[0];
+2’b01: out=in[1];
+2’b10: out=in[2];
+default : out=in[3];
+endcase
+end
+
+endmodule
+
+Another Example: 4-bit inverted priority encoder - (from LSB to MSB)  - casez - 
+
+module priority_enc_4bit (  input [3:0 ] in,  output reg [1:0] pos );
+
+always @(*)
+casez(in)
+default: pos=2’d0;
+4’bzzz1: pos=2’d0;
+4’bzz10: pos=2’d1;
+4’bz100: pos=2’d2;
+4’b1000: pos=2’d3;
+endcase
+
+endmodule
+—------------------------------------------------------------------------------------------------------------------------
+Continuous, Blocking and Non-blocking assignments-
+Continuous assignments (assign  x = y;). Can only be used when not inside a procedure ("always block").
+A parallel block
+There is no control by clock, it immediately happens.
+only for wires (Net data types)
+
+
+Procedural blocking assignment: (x = y;). Can only be used inside a procedure.
+A sequential block
+The block is controlled by clk.
+
+
+Procedural non-blocking assignment: (x <= y;). Can only be used inside a procedure.
+A parallel block
+The difference between this and the continuous assignment is that in the continuous assignment everything immediately happens without a clock intervention, and in non-blocking assignment everything happens together at the same time (in parallel) but on a clock order (controlled by clock).
+
+Golden rule - In a combinational always block, use blocking assignments. In a clocked always block use non-blocking assignments
+
+Example: 
+module top ( );
+reg a,b;
+initial   // the * indicates that every time a signal in this block changes, its runs this always block
+begin
+a= 1’b0;			TIME		A		B
+b= 1’b0;			0+		0		0
+#10ns a= 1’b1;		10+		1		0
+#10ns b= 1’b1;		20+		1		1
+a <=  #5ns 1’b0;		25+		0		0 Non blocking
+b <=  #5ns 1’b0;		
+end
+end
+endmodule
+—------------------------------------------------------------------------------------------------------------------------
+Example: for loop with ? condition - Count logical 1 from an input.
+module top_module( input [254:0] in, output [7:0] out );
+    always @(*) begin
+        out = 8'b0;
+        for (int i=0; i<255; i++)
+            out = in[i] ? out+1 : out;
+    end
+endmodule
+—------------------------------------------------------------------------------------------------------------------------
+generate - a block used to create repeated instances of code (like for loops). this block has a name (like gen in the example) and there is a possibility to create a constans just for the generate block (like genvar constant in the example) 
+Example: 100bit Full adder
+module FA_100bit(  input [99:0] a, b, input cin, output [99:0] cout, sum );
+    assign {cout[0], sum[0]} = a[0] + b[0] + cin; // taking care for the first addition because of cin
+    genvar i; // A constant made only for the generate block
+    generate begin
+        for(i=1; i<100; i++) begin :gen // gen is the name of the generate block, each generate block has a name.
+            FA_1bit fa (.sum(sum[i]), .cout(cout[i]), .in1(a[i]), .in2(b[i]), .cin(cout[i-1]));
+        end :gen // the name of the generate block has to start the block and to end it
+    	end
+    endgenerate    
+endmodule
+module FA_1bit ( input in1, in2, cin, output sum, cout); // module of 1bit FA that is used in the top module
+    assign {cout, sum} = in1 + in2 + cin;
+endmodule
+
+Another Example:   100bit BCD Full adder (each decimal number represented with 4 bits)
+module bcdFA_100bit( input [399:0] a, b, input cin, output cout, output [399:0] sum );
+    wire [99:0] carry;
+    bcd_fadd bcdfirst ( .a(a[3:0]), .b(b[3:0]), .cin(cin), .cout(carry[0]), .sum(sum[3:0]));
+    genvar i;
+    generate begin
+        for ( i=1; i<100; i++) begin :gen
+            bcd_fadd bcdfa(.a({a[i*4+3 : i*4]}), .b({b[i*4+3 : i*4]}), .cin(carry[i-1]), .cout(carry[i]),
+        .sum({sum[i*4+3 : i*4]}));
+        end :gen
+    end
+    endgenerate
+    assign cout = carry[99];
+endmodule
+—------------------------------------------------------------------------------------------------------------------------
